@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "page-loader": "bin/page-loader.js"
+  },
   "type": "module",
   "repository": {
     "type": "git",
@@ -18,7 +21,6 @@
   },
   "homepage": "https://github.com/tvivls/fullstack-javascript-project-4#readme",
   "dependencies": {
-    "commander": "^10.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
