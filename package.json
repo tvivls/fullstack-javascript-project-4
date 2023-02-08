@@ -1,0 +1,26 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/tvivls/fullstack-javascript-project-4/workflows/hexlet-check/badge.svg)](https://github.com/tvivls/fullstack-javascript-project-4/actions)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tvivls/fullstack-javascript-project-4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tvivls/fullstack-javascript-project-4/issues"
+  },
+  "homepage": "https://github.com/tvivls/fullstack-javascript-project-4#readme",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "jest": "^29.4.2"
+  }
+}
