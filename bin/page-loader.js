@@ -9,6 +9,9 @@ program
   .version('0.8.0')
   .option('-o, --output [dir]', `output dir (default: "${cwd()}")`)
   .argument('<url>')
-  .action((url, { filePath }) => console.log(loader(url, filePath)));
+  .action((url) => {
+    const options = program.opts();
+    loader(url, options.output)
+  });
 
 program.parse();
