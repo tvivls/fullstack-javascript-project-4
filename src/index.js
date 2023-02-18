@@ -1,20 +1,39 @@
 import axios from "axios";
-import fsp from 'node:fs/promises'; 
+import fsp from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { cwd } from 'node:process';
-import path from "node:path";
+import cheerio from 'cheerio';
+import * as utils from './utils.js';
 
 export default (url, defaultPath = cwd()) => {
-    return axios.get(url)
+  let $;
+  return axios.get(url)
     .then(response => {
       const data = response.data;
-        const [, fileString] = url.split(new URL(url).protocol);
-        const fileName =`${fileString.replace(/[^a-zа-яё0-9]/gi, '-').slice(2)}.html`;
-        const filePath = path.join(defaultPath, fileName);
-        fsp.writeFile(filePath, data);
-        console.log(filePath); 
-        console.log(`\nopen ${filePath}`);
+      $ = cheerio.load(data);
+      const dirName = utils.buildDirName(url);
+      const dirPath = utils.filePaths(defaultPath, dirName)
+      fsp.access(dirPath, constants.F_OK)
+      .catch(() => {
+        fsp.mkdir(dirPath);
+      });
+      const imges = Array.from($('img'))
+      .map((el) => {
+        const srcs = $(el).attr('src');
+        const srcValue = utils.filePaths('', utils.nameFromLink(srcs))
+        
+      });
+      
+      const fileName = utils.buildFileName(url);
+      const filePath = utils.filePaths(defaultPath, fileName);
+      fsp.writeFile(filePath, data);
+      console.log(filePath); 
+      console.log(`\nopen ${filePath}`);
+      return filePath;
     })
     .catch(error => {
       throw new Error(error);
     }).finally()
+
+    
 }
