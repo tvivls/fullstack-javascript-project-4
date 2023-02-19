@@ -1,35 +1,40 @@
 import axios from "axios";
 import fsp from 'node:fs/promises';
+import fs from 'node:fs'
 import { constants } from 'node:fs';
 import { cwd } from 'node:process';
 import cheerio from 'cheerio';
 import * as utils from './utils.js';
 
-const LoadImages = ($, dirPath) => {
+const uploadImages = ($, dirPath) => {
   Array.from($('img'))
   .map(link => {
     const imgSrc = $(link).attr('src');
-    axios.get(imgSrc)
+    axios({
+      method: 'get',
+      url: imgSrc,
+      responseType: 'stream',
+    })
       .then(imgResponse => {
         const srcPath = utils.filePaths(dirPath, utils.nameFromLink(imgSrc));
-        fsp.writeFile(srcPath, imgResponse.data, 'utf-8')
+        const filestream = fs.createWriteStream(srcPath);
+        imgResponse.data.pipe(filestream)
       })
   });
 }
 
 export default (url, defaultPath = cwd()) => {
-  let $;
   return axios.get(url)
     .then(response => {
       const data = response.data;
-      $ = cheerio.load(data); 
+      const $ = cheerio.load(data); 
       const dirName = utils.buildDirName(url);
       const dirPath = utils.filePaths(defaultPath, dirName)
       fsp.access(dirPath, constants.F_OK)
       .catch(() => {
         fsp.mkdir(dirPath);
       });
-      LoadImages($, dirPath);
+      uploadImages($, dirPath);
 
       const fileName = utils.buildFileName(url);
       const filePath = utils.filePaths(defaultPath, fileName);
