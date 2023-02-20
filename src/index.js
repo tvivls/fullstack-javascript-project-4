@@ -9,7 +9,7 @@ import * as utils from './utils.js';
 export const isDomain = (src, url) => {
   const srcUrl = new URL(src, url);
   const pageUrl = new URL(url);
-  return srcUrl.origin === pageUrl.origin;
+  return srcUrl.hostname === pageUrl.hostname;
 };
 
 const mapping = {
@@ -26,6 +26,7 @@ const uploading = ($, dirPath, url) => {
       const tagValue = $(link).attr(value);
       if (isDomain(tagValue, url) && tagValue) {
         const newLink = utils.filePaths(dirPath, utils.nameFromLink(tagValue));
+
         axios({
           method: 'get',
           url: tagValue,
@@ -61,7 +62,7 @@ export default (url, defaultPath = cwd()) => {
       const dirPath = createDir(url, defaultPath)
       const newHtml = uploading($, dirPath, url);
 
-      const fileName = utils.buildFileName(url);
+      const fileName = utils.nameFromLink(url);
       const filePath = utils.filePaths(defaultPath, fileName);
       fsp.writeFile(filePath, newHtml);
       console.log(filePath); 
