@@ -6,22 +6,39 @@ import { cwd } from 'node:process';
 import cheerio from 'cheerio';
 import * as utils from './utils.js';
 
-const images = ($, dirPath) => {
-  Array.from($('img'))
+export const isDomain = (src, url) => {
+  const srcUrl = new URL(src, url);
+  const pageUrl = new URL(url);
+  return srcUrl.origin === pageUrl.origin;
+};
+
+const mapping = {
+  'img': 'src',
+  'link': 'href',
+  'script': 'src',
+};
+
+const uploading = ($, dirPath, url) => {
+  const tags = Object.entries(mapping);
+  tags.map(([tag, value]) => {
+    Array.from($(tag))
     .map(link => {
-      const imgSrc = $(link).attr('src');
-      const newSrc = utils.filePaths(dirPath, utils.nameFromLink(imgSrc));
-      axios({
-        method: 'get',
-        url: imgSrc,
-        responseType: 'stream',
-      })
-      .then(imgResponse => {
-        const filestream = fs.createWriteStream(newSrc);
-        imgResponse.data.pipe(filestream)
-      })
-      $(link).attr("src", newSrc);   
-    });
+      const tagValue = $(link).attr(value);
+      if (isDomain(tagValue, url) && tagValue) {
+        const newLink = utils.filePaths(dirPath, utils.nameFromLink(tagValue));
+        axios({
+          method: 'get',
+          url: tagValue,
+          responseType: 'stream',
+        })
+        .then(response => {
+          const filestream = fs.createWriteStream(newLink);
+          response.data.pipe(filestream);
+        })
+        $(link).attr(value, newLink);
+      }
+    })
+  });
   return $.html();
 };
 
@@ -39,10 +56,10 @@ export default (url, defaultPath = cwd()) => {
   return axios.get(url)
     .then(response => {
       const data = response.data;
-      const $ = cheerio.load(data); 
+      const $ = cheerio.load(data);
 
       const dirPath = createDir(url, defaultPath)
-      const newHtml = images($, dirPath);
+      const newHtml = uploading($, dirPath, url);
 
       const fileName = utils.buildFileName(url);
       const filePath = utils.filePaths(defaultPath, fileName);
