@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import loader from '../src/index.js'
+import loader from '../src/index.js';
 import { cwd } from 'node:process';
 
 const program = new Command();
@@ -11,7 +11,7 @@ program
   .argument('<url>')
   .action((url) => {
     const options = program.opts();
-    loader(url, options.output)
+    loader(url, options.output);
   });
 
 program.parse();
